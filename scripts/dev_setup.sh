@@ -666,6 +666,11 @@ function install_pnpm {
 }
 
 function install_python3 {
+  if command -v python3 &> /dev/null; then
+    echo "Python 3 is already installed"
+    return
+  fi
+
   if [[ "$PACKAGE_MANAGER" == "apt-get" ]]; then
     install_pkg python3-all-dev "$PACKAGE_MANAGER"
     install_pkg python3-setuptools "$PACKAGE_MANAGER"
@@ -1062,10 +1067,12 @@ install_libudev-dev
 
 install_python3
 if [[ "$SKIP_PRE_COMMIT" == "false" ]]; then
-  if [[ "$PACKAGE_MANAGER" != "pacman" ]]; then
-    pip3 install pre-commit
-  else
+  if [[ "$PACKAGE_MANAGER == brew" ]]; then
+    install_pkg pre-commit "$PACKAGE_MANAGER"
+  elif [[ "$PACKAGE_MANAGER" == "pacman" ]]; then
     install_pkg python-pre-commit "$PACKAGE_MANAGER"
+  else
+    pip3 install pre-commit
   fi
 
   # For now best effort install, will need to improve later
